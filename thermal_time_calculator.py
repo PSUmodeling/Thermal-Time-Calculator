@@ -51,19 +51,16 @@ def cum_thermal_time(latitude, doy, tmp, tavg, gs, tt0):
     '''Calculate cumulative thermal time'''
     # Determine on/off of growing season
     if latitude >= 0.0:
-        if doy < 152 and tmp >= T_THLD:
-            # Switch to growing season when moving average temperature
-            # in spring becomes higher than threshold
-            gs = 1
+        # Switch to growing season when moving average temperature in spring
+        # becomes higher than threshold
+        gs = 1 if doy < 152 and tmp >= T_THLD else gs
 
-        if doy >= 245 and tmp < T_THLD:
-            gs = 0
+        # Switch to dormant season when air temperature (or moving average) in
+        # fall becomes lower than threshold
+        gs = 0 if doy >= 245 and tmp < T_THLD else gs
 
-    if gs == 1:
-        # Cumulate thermal time during growing season
-        tt = thermal_time(T_BASE, T_OPT, T_MAX, tavg) + tt0
-    else:
-        tt = 0.0
+    # Cumulate thermal time during growing season
+    tt = thermal_time(T_BASE, T_OPT, T_MAX, tavg) + tt0 if gs == 1 else 0.0
 
     return gs, tt
 
