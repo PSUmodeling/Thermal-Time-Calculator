@@ -32,7 +32,7 @@ def read_weather(file, hlines, latline):
 
     # Read temperatures
     df = pandas.read_csv(file,
-                         sep=' ',
+                         delim_whitespace=True,
                          header=None,
                          skipinitialspace=True,
                          skiprows=list(range(hlines)),
