@@ -157,8 +157,13 @@ def main():
             # air temperature to determine start and end of growing seasons
             df['tma'] = df.rolling(window, min_periods=1).mean()['tavg']
         else:
+            # Group by DOY
+            df = df.groupby('doy').mean()
+
             # Remove DOY 366
-            df = df.groupby('doy').mean().drop(366)
+            if 366 in df.index:
+                df = df.drop(366)
+
             df = df.reset_index()
 
         # Open thermal time files
