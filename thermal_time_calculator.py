@@ -49,15 +49,19 @@ def read_weather(file, hlines, latline):
 
 def cum_thermal_time(latitude, doy, tmp, tavg, gs, tt0):
     '''Calculate cumulative thermal time'''
-    # Determine on/off of growing season
-    if latitude >= 0.0:
-        # Switch to growing season when moving average temperature in spring
-        # becomes higher than threshold
-        gs = 1 if doy < 152 and tmp >= T_THLD else gs
 
-        # Switch to dormant season when air temperature (or moving average) in
-        # fall becomes lower than threshold
-        gs = 0 if doy >= 245 and tmp < T_THLD else gs
+    # Adjust seasons for southern hemisphere
+    if latitude < 0.0:
+        doy = (doy + 183) % 365
+        doy = 365 if doy == 0 else doy
+
+    # Switch to growing season when moving average temperature in spring
+    # becomes higher than threshold
+    gs = 1 if doy < 152 and tmp >= T_THLD else gs
+
+    # Switch to dormant season when air temperature (or moving average) in
+    # fall becomes lower than threshold
+    gs = 0 if doy >= 245 and tmp < T_THLD else gs
 
     # Cumulate thermal time during growing season
     tt = thermal_time(T_BASE, T_OPT, T_MAX, tavg) + tt0 if gs == 1 else 0.0
@@ -179,6 +183,10 @@ def main():
             # Initial values of cumulative thermal time and growing season flag
             tt = 0.0
             gs = 0
+
+            # Rearrage orders for southern hemisphere
+            if latitude < 0.0:
+                df = df.reindex(list(range(182, 365)) + list(range(0, 182)))
 
             for ind in range(len(df)):
                 gs, tt = cum_thermal_time(
